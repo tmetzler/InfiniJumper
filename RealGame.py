@@ -1,8 +1,9 @@
 import pyxel
 import json
+import os
 from random import randint
 #Fichier pour l'highscore
-highscore = '/Users/titouan/Desktop/MyCode/HighScore.json'
+highscore = './HighScore.json'
 
 fps = 60
 
@@ -55,7 +56,9 @@ class Sprite:
         self.speed = 0
         self.imgposx = 0
         self.imgposy = 0
-
+    def is_lost(self):
+        return self.y + self.h >= ground
+    
     def update(self):
 
         #sideways movement
@@ -76,9 +79,7 @@ class Sprite:
             self.speed = self.speed + gravity/fps
         if self.y + self.h > ground:
             self.y = ground - 8
-        if self.y + self.h >= ground:
-            pyxel.quit()
-            print("YOU LOSE")
+    
         if in_rectangle(self.x, self.y + self.h) or in_rectangle(self.x + self.w, self.y + self.h):
             self.speed = 0
         #Jumping
@@ -101,20 +102,25 @@ class Score:
     """Le Score"""
     def __init__(self) -> None:
         self.current_score = 0
-
+        if os.path.exists(highscore):
+            with open (highscore) as h:
+                self.high_score = json.load (h)
+        else:
+            self.high_score = 0
+            
     def update(self):
         self.current_score = self.current_score + 1
-        with open (highscore) as h:
-            HighScore = json.load(h)
-            if HighScore < self.current_score:
-                with open (highscore, 'w') as f:
-                    json.dump(self.current_score, f)
+        
 
     
+    def save_high_score(self):
+    
+        if self.high_score < self.current_score:
+            with open (highscore, 'w') as f:
+                json.dump(self.current_score, f)
+
     def draw(self):
-        with open (highscore) as h:
-            Hscore = json.load (h)
-            pyxel.text(10, 10, f"Score: {self.current_score} \n High Score: {Hscore}", 7)
+        pyxel.text(10, 10, f"Score: {self.current_score} \n High Score: {self.high_score}", 7)
 
     
 def update():
@@ -122,6 +128,15 @@ def update():
     global move_down
     for sprite in sprites:
         sprite.update()
+
+    player = sprites[0]
+    score = sprites[1]
+    
+    if player.is_lost():        
+        score.save_high_score()
+        print("You lose")
+        pyxel.quit()
+
     if move_down % (150 / difficulty) == 0:
         #Makes Sure New Block Isn't in Sprite & Sprite can jump on it
         while Invalid_Block:
@@ -137,9 +152,11 @@ def update():
 
 def draw():
     pyxel.cls(0)
-
     for sprite in sprites:
         sprite.draw()
+
+
+
 #Sprite
 sprites.append(Sprite())
 #Score
