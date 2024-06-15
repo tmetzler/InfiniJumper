@@ -18,4 +18,4 @@ $ python RealGame.py
 
 ### In a browser
 
-Simply click on [Play](https://kitao.github.io/pyxel/wasm/launcher/?run=tmetzler.InfiniJumper.RealGame)
+Simply click on [Play](https://kitao.github.io/pyxel/wasm/launcher/?run=tmetzler.InfiniJumper.Game)
