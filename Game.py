@@ -101,6 +101,10 @@ class Sprite:
 
         pyxel.blt(self.x, self.y, 0, 8, 0, self.w, self.h)
 
+class Camera:
+    def __init__(self) -> None:
+        self.x 
+
 class Score:
     """Le Score"""
     def __init__(self) -> None:
@@ -127,26 +131,36 @@ class Score:
 
     
 def update():
+
+    global player
+    global score
+
+    player = sprites[-1]
+    score = sprites[-2]
+
+    pyxel.camera(0, player.y - pyxel.height/2 - player.h/2)
+
     global Invalid_Block
     global move_down
     for sprite in sprites:
         sprite.update()
 
-    player = sprites[-1]
-    score = sprites[-2]
     
     if player.is_lost():        
         score.save_high_score()
         print("You lose")
         pyxel.quit()
 
-    if move_down % (150 / difficulty) == 0:
+    if move_down % (120 / difficulty) == 0:
         #Makes Sure New Block Isn't in Sprite & Sprite can jump on it
         while Invalid_Block:
             new_width = randint(10, 60)
-            new_block = Block(width = new_width, height = randint(10,90), x = randint(1,140) - new_width/2, y = 50, color = randint(1,15), speed = pyxel.rndf(1, 2.5))
+            new_block = Block(width = new_width, height = randint(10,90), x = randint(0 - 30, pyxel.width) - new_width/2, y = player.y - 50, color = randint(1,15), speed = pyxel.rndf(1, 2.5))
+
             if new_block.y > player.y + 8 or new_block.x > player.x + 8 or new_block.y + new_block.height < player.y or new_block.x + new_block.width < player.x:
+
                 if new_block.x - 70 < player.x + 8 and new_block.x + new_block.width + 70 > player.x:    
+
                     if new_block.x > player.x + player.w or new_block.x + new_block.width < player.x:
                         Invalid_Block = False
                         sprites.insert(0, new_block)
